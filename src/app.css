@@ -1,0 +1,61 @@
+/* ============================================================
+   AARAV PHOTOGRAPHY — Global Styles (app.css)
+   Variables, reset, and shared typography
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-bg:        #faf9f7;
+  --color-bg-alt:    #f2f0ec;
+  --color-fg:        #1a1916;
+  --color-muted:     #8a8780;
+  --color-accent:    #b5a48a;
+  --color-border:    #e4e2de;
+  --color-white:     #ffffff;
+
+  --font-serif:   'Spectral', Georgia, serif;
+  --font-sans:    'Inter', system-ui, sans-serif;
+
+  --header-h:     72px;
+  --max-w:        1200px;
+  --grid-gap:     3px;
+
+  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --transition:   0.4s var(--ease-out);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
