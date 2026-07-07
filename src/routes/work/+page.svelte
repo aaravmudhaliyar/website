@@ -1,5 +1,14 @@
 <script>
+	import Lightbox from '$lib/components/Lightbox.svelte';
 	let { data } = $props();
+
+	let lightboxOpen = $state(false);
+	let currentImageIndex = $state(0);
+
+	function openLightbox(index) {
+		currentImageIndex = index;
+		lightboxOpen = true;
+	}
 </script>
 
 <svelte:head>
@@ -9,9 +18,17 @@
 <section class="work-container">
 	<div class="masonry-grid">
 		{#if data.images}
-			{#each data.images as image}
+			{#each data.images as image, index}
 				<div class="masonry-item">
-					<img src={image.src} alt={image.alt} loading="lazy" />
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+					<img 
+						src={image.src} 
+						alt={image.alt} 
+						loading="lazy" 
+						onclick={() => openLightbox(index)}
+						style="cursor: pointer;"
+					/>
 				</div>
 			{/each}
 		{:else}
@@ -19,6 +36,14 @@
 		{/if}
 	</div>
 </section>
+
+{#if data.images}
+	<Lightbox 
+		images={data.images} 
+		bind:open={lightboxOpen} 
+		bind:currentIndex={currentImageIndex} 
+	/>
+{/if}
 
 <style>
 	.work-container {

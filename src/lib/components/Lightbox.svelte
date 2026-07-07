@@ -1,5 +1,4 @@
 <script>
-	/** @type {{ images?: Array<{ src: string, alt: string, title: string, category: string }>, open?: boolean, currentIndex?: number }} */
 	let {
 		images = [],
 		open = $bindable(false),
@@ -7,26 +6,19 @@
 	} = $props();
 
 	let visible = $state(false);
-	let imgFaded = $state(false);
 
 	function close() {
 		open = false;
 	}
 
-	function prev() {
-		imgFaded = true;
-		setTimeout(() => {
-			currentIndex = (currentIndex - 1 + images.length) % images.length;
-			imgFaded = false;
-		}, 150);
+	function prev(e) {
+		if (e) e.stopPropagation();
+		currentIndex = (currentIndex - 1 + images.length) % images.length;
 	}
 
-	function next() {
-		imgFaded = true;
-		setTimeout(() => {
-			currentIndex = (currentIndex + 1) % images.length;
-			imgFaded = false;
-		}, 150);
+	function next(e) {
+		if (e) e.stopPropagation();
+		currentIndex = (currentIndex + 1) % images.length;
 	}
 
 	function handleKeydown(e) {
@@ -42,138 +34,193 @@
 		}
 	}
 
-	// Animate in/out with a slight delay for the CSS transition
 	$effect(() => {
 		if (open) {
+			document.body.style.overflow = 'hidden';
 			requestAnimationFrame(() => {
 				visible = true;
 			});
 		} else {
 			visible = false;
-		}
-	});
-
-	// Lock body scroll when open
-	$effect(() => {
-		if (open) {
-			document.body.style.overflow = 'hidden';
-		} else {
 			document.body.style.overflow = '';
 		}
-
 		return () => {
 			document.body.style.overflow = '';
 		};
-	});
-
-	// Keyboard listener
-	$effect(() => {
-		window.addEventListener('keydown', handleKeydown);
-		return () => {
-			window.removeEventListener('keydown', handleKeydown);
-		};
-	});
-
-	let currentImage = $state(undefined);
-	$effect(() => {
-		currentImage = images[currentIndex];
 	});
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 {#if open}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="lightbox-backdrop" class:visible></div>
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="lightbox" class:visible onclick={handleBackdropClick}>
+	<div class="lightbox-backdrop" class:visible onclick={handleBackdropClick}>
 		<button class="lightbox-close" onclick={close} aria-label="Close lightbox">
-			&times;
+			<i class="fas fa-times"></i>
 		</button>
 
 		{#if images.length > 1}
-			<button class="lightbox-prev" onclick={prev} aria-label="Previous image">
+			<button class="lightbox-nav lightbox-prev" onclick={prev} aria-label="Previous image">
 				<i class="fas fa-chevron-left"></i>
 			</button>
-			<button class="lightbox-next" onclick={next} aria-label="Next image">
+			<button class="lightbox-nav lightbox-next" onclick={next} aria-label="Next image">
 				<i class="fas fa-chevron-right"></i>
 			</button>
 		{/if}
 
-		{#if currentImage}
-			<div class="lightbox-img-wrap">
+		<div class="lightbox-content">
+			{#if images[currentIndex]}
 				<img
 					class="lightbox-img"
-					class:faded={imgFaded}
-					src={currentImage.src}
-					alt={currentImage.alt}
+					src={images[currentIndex].src}
+					alt={images[currentIndex].alt || 'Image preview'}
 				/>
-			</div>
-
-			<div class="lightbox-meta">
-				{#if currentImage.title}
-					<span class="lightbox-title">{currentImage.title}</span>
+				
+				{#if images[currentIndex].title || images[currentIndex].category}
+					<div class="lightbox-meta">
+						{#if images[currentIndex].title}
+							<span class="lightbox-title">{images[currentIndex].title}</span>
+						{/if}
+						{#if images[currentIndex].category}
+							<span class="lightbox-cat">{images[currentIndex].category}</span>
+						{/if}
+					</div>
 				{/if}
-				{#if currentImage.category}
-					<span class="lightbox-cat">{currentImage.category}</span>
-				{/if}
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
 {/if}
 
 <style>
 	.lightbox-backdrop {
-		position: fixed; inset: 0;
-		background: rgba(10, 10, 10, 0.95); z-index: 200;
-		backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-		opacity: 0; transition: opacity 0.4s ease;
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.9);
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
 	}
-	.lightbox-backdrop.visible { opacity: 1; }
-	.lightbox {
-		position: fixed; inset: 0; z-index: 201;
-		display: flex; flex-direction: column; align-items: center; justify-content: center;
-		padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+
+	.lightbox-backdrop.visible {
+		opacity: 1;
 	}
-	.lightbox.visible { opacity: 1; pointer-events: all; }
-	.lightbox-img-wrap {
-		max-width: min(90vw, 1100px); max-height: 80vh;
-		display: flex; align-items: center; justify-content: center;
-	}
-	.lightbox-img {
-		max-width: 100%; max-height: 80vh; width: auto; height: auto;
-		object-fit: contain; border-radius: 2px;
-		box-shadow: 0 40px 100px rgba(0,0,0,0.6); transition: opacity 0.3s ease;
-	}
-	.lightbox-img.faded { opacity: 0; }
+
 	.lightbox-close {
-		position: absolute; top: 22px; right: 28px;
-		font-size: 28px; color: rgba(255,255,255,0.6);
-		line-height: 1; padding: 8px; transition: color 0.2s, transform 0.2s;
-		background: none; border: none; cursor: pointer;
+		position: absolute;
+		top: 24px;
+		right: 32px;
+		background: none;
+		border: none;
+		color: rgba(255, 255, 255, 0.7);
+		font-size: 32px;
+		cursor: pointer;
+		transition: color 0.2s ease, transform 0.2s ease;
+		z-index: 10000;
+		padding: 8px;
 	}
-	.lightbox-close:hover { color: #fff; transform: rotate(90deg); }
-	.lightbox-prev, .lightbox-next {
-		position: absolute; top: 50%; transform: translateY(-50%);
-		font-size: 22px; color: rgba(255,255,255,0.5);
-		padding: 16px 20px; transition: color 0.2s, transform 0.3s;
-		background: none; border: none; cursor: pointer;
+
+	.lightbox-close:hover {
+		color: white;
+		transform: rotate(90deg);
 	}
-	.lightbox-prev { left: 16px; }
-	.lightbox-next { right: 16px; }
-	.lightbox-prev:hover { color: #fff; transform: translateY(-50%) translateX(-4px); }
-	.lightbox-next:hover { color: #fff; transform: translateY(-50%) translateX(4px); }
+
+	.lightbox-nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		background: rgba(0, 0, 0, 0.5);
+		border: none;
+		color: rgba(255, 255, 255, 0.7);
+		font-size: 24px;
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		z-index: 10000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.lightbox-nav:hover {
+		color: white;
+		background: rgba(0, 0, 0, 0.8);
+		transform: translateY(-50%) scale(1.1);
+	}
+
+	.lightbox-prev {
+		left: 32px;
+	}
+
+	.lightbox-next {
+		right: 32px;
+	}
+
+	.lightbox-content {
+		position: relative;
+		max-width: 90vw;
+		max-height: 90vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.lightbox-img {
+		max-width: 100%;
+		max-height: 85vh;
+		object-fit: contain;
+		border-radius: 4px;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+		user-select: none;
+	}
+
 	.lightbox-meta {
-		position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
-		display: flex; flex-direction: column; align-items: center; gap: 5px;
+		margin-top: 16px;
+		text-align: center;
+		color: white;
 	}
+
 	.lightbox-title {
-		font-family: var(--font-serif); font-weight: 300; font-size: 18px;
-		color: rgba(255,255,255,0.85);
+		display: block;
+		font-size: 1.25rem;
+		font-weight: 500;
+		margin-bottom: 4px;
+		font-family: var(--font-serif, serif);
 	}
+
 	.lightbox-cat {
-		font-family: var(--font-sans); font-size: 10px;
-		letter-spacing: 0.2em; text-transform: uppercase;
-		color: rgba(255,255,255,0.4);
+		display: block;
+		font-size: 0.875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: rgba(255, 255, 255, 0.6);
+		font-family: var(--font-sans, sans-serif);
+	}
+
+	@media (max-width: 768px) {
+		.lightbox-nav {
+			width: 44px;
+			height: 44px;
+			font-size: 18px;
+		}
+		.lightbox-prev {
+			left: 12px;
+		}
+		.lightbox-next {
+			right: 12px;
+		}
+		.lightbox-close {
+			top: 16px;
+			right: 16px;
+			font-size: 24px;
+		}
 	}
 </style>
