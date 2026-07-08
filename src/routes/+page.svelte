@@ -2,8 +2,8 @@
 	const slides = [
 		{
 			bg: '/DSC_0170.jpg',
-			eyebrow: 'Portfolio',
-			title: 'The Work',
+			eyebrow: '',
+			title: 'My Work',
 			sub: 'Landscapes, portraits, streets & beyond',
 			cta: { text: 'View Gallery', href: '/work' }
 		},
@@ -16,8 +16,8 @@
 		},
 		{
 			bg: '/DSC_0182.jpg',
-			eyebrow: 'Commissions & Collaborations',
-			titleHtml: "Let's Create<br><em>Together</em>",
+			eyebrow: '',
+			titleHtml: "Let's<br><em>Connect</em>",
 			sub: 'Available for editorial, wedding & commercial work',
 			cta: { text: 'Get in Touch', href: 'mailto:aaravmudhaliyar@gmail.com' }
 		}
@@ -163,7 +163,7 @@
 		margin-bottom: 22px;
 	}
 	.slide-title :global(em) {
-		font-style: italic;
+		font-style: normal;
 		font-weight: 200;
 		color: rgba(255, 220, 170, 0.9);
 	}

@@ -18,7 +18,7 @@
 <header class="site-header" class:scrolled>
 	<div class="header-inner">
 		<nav class="nav-left">
-			<a href="/work" class="nav-link">Work</a>
+			<a href="/work" class="nav-link">My Work</a>
 			<a href="/about" class="nav-link">About</a>
 		</nav>
 

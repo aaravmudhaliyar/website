@@ -1,8 +1,8 @@
 <footer class="site-footer">
 	<div class="footer-inner">
 		<a href="/" class="footer-logo">Aarav</a>
-		<p class="footer-tagline">Fine Art Photography</p>
-		<p class="footer-copy">&copy; 2026 Aarav Mudhaliyar. All rights reserved.</p>
+		<p class="footer-tagline">Nature Photographer</p>
+		<p class="footer-copy">&copy; 2026 All rights reserved.</p>
 	</div>
 </footer>
 
